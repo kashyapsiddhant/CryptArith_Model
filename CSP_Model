@@ -1,0 +1,53 @@
+def solve_cryptarithmetic(puzzle):
+    letters = set(''.join(puzzle))
+    if len(letters) > 10:
+        return None
+
+    assigned_digits = {letter: None for letter in letters}
+
+    def is_valid_assignment(letter, digit):
+        if letter == 'D':
+            return digit == 1
+        return digit not in assigned_digits.values()
+
+    def assign_digit(letter, digit):
+        assigned_digits[letter] = digit
+
+    def unassign_digit(letter):
+        assigned_digits[letter] = None
+
+    def translate_word(word):
+        return ''.join(str(assigned_digits[letter]) for letter in word)
+
+    def is_solution():
+        return int(translate_word(puzzle[0])) + int(translate_word(puzzle[1])) == int(translate_word(puzzle[2]))
+
+    def solve(index):
+        if index == len(letters):
+            return is_solution()
+
+        letter = list(letters)[index]
+        if assigned_digits[letter] is not None:
+            return solve(index + 1)
+
+        for digit in range(10):
+            if is_valid_assignment(letter, digit):
+                assign_digit(letter, digit)
+                if solve(index + 1):
+                    return True
+                unassign_digit(letter)
+
+        return False
+
+    if solve(0):
+        print("Letters and corresponding digits:")
+        for word in puzzle:
+            print(' '.join(word))
+            print(' '.join(str(assigned_digits[letter]) for letter in word), '\n')
+    else:
+        print("No solution exists.")
+
+
+if __name__ == "__main__":
+    puzzle = ["EVER", "SINCE", "DARWIN"]
+    solve_cryptarithmetic(puzzle)
